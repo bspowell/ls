@@ -11,39 +11,40 @@ def get_num
     puts "Input a number"
     input1 = gets.chomp
     return input1.to_i if valid_num?(input1)
-    
     puts "not a valid number"
   end
-end 
+end
+
 def get_opp
   loop do
     puts "Input a type of operation (+,-,*,/)"
     input2 = gets.chomp
-    return input2 if input2 == "+" || input2 == "-" ||input2 ==  "*" || input2 == "/"
+    return input2 if %w(+ - * /).include?(input2)
     puts "not a valid operator"
   end
-end   
+end
 
 def calculator(num1, opp, num2)
   case opp
-    when "+"
-      results = num1 + num2
-    when "-"
-      results = num1 - num2
-    when "*"
-     results = num1 * num2
-    else
-      results = num1.to_f / num2.to_f
+  when "+"
+    results = num1 + num2
+  when "-"
+    results = num1 - num2
+  when "*"
+    results = num1 * num2
+  else
+    results = num1.to_f / num2.to_f
   end
   puts "Here are your results: #{results}"
-end 
+end
 
 loop do
   puts "Welcome to the Calculator"
   first_num = get_num
   second_num = get_num
   operator = get_opp
-  
-  calculator(first_num, operator, second_num)
-end 
-
+  calculator first_num, operator, second_num
+  puts "do you want to perform another calculation? (Y to calculate again)"
+  answer = gets.chomp.downcase
+  break if answer != 'y'
+end
