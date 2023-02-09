@@ -19,40 +19,49 @@ def choice_to_word(player_choice)
   word.join()
 end
 
-def who_wins?(player, computer)
+def wins?(player, computer)
   WIN_CONDITION.any? do |element|
     element[0] == player && element[1] == computer
   end
 end
 
-player_score = 0
-computer_score = 0
-tie_score = 0
-
-prompt("Welcome to RPSLS!")
-loop do
-  user_choice = ''
+def prompt_user_choice
+  u_choice = ''
   loop do
     prompt("Choose one of the following: rock, paper, scissors, lizard, spock")
-    user_choice = gets.chomp
+    u_choice = gets.chomp
 
-    if user_choice.downcase == 's'
+    if u_choice.downcase == 's'
       prompt("Do you mean spock or scissors?")
       next
     end
+    
+    if u_choice == ""
+      next
+    end
 
-    break if validate_choice(user_choice)
+    break if validate_choice(u_choice)
 
     prompt("Enter a valid option")
   end
+  return u_choice
+end
 
+player_score = 0
+computer_score = 0
+tie_score = 0
+user_choice = ''
+
+prompt("Welcome to RPSLS!")
+loop do
+  user_choice = prompt_user_choice
   user_choice = choice_to_word(user_choice)
   computer_choice = CHOICES.sample
 
-  if who_wins?(user_choice, computer_choice)
+  if wins?(user_choice, computer_choice)
     prompt("You won!")
     player_score += 1
-  elsif who_wins?(computer_choice, user_choice)
+  elsif wins?(computer_choice, user_choice)
     prompt("Computer won!")
     computer_score += 1
   else
