@@ -60,8 +60,11 @@ Steps:
 =end
 # rubocop:enable TrailingWhitespace
 
+
 require 'pry'
 
+MAX_NUMBER = 21
+DEALER_HIT_NUM = 17
 DECK =
   [
     ['H', 2], ['H', 3], ['H', 4], ['H', 5], ['H', 6], ['H', 7], ['H', 8],
@@ -99,46 +102,21 @@ def total(cards)
 
   # correct for Aces
   values.select { |value| value == "A" }.count.times do
-    sum -= 10 if sum > 21
+    sum -= 10 if sum > MAX_NUMBER
   end
 
   sum
 end
 
 def busted?(cards_in_hand)
-  return false if total(cards_in_hand) <= 21
+  return false if cards_in_hand <= MAX_NUMBER
   true
-end
-
-def add_card(cards, deck)
-  cards << deck.delete(deck.sample)
-  prompt "You got a: #{cards.last.last}"
-end
-
-def player_turn(player_hand, curr_deck)
-  loop do
-    prompt "Would you like to hit or stay? (h or s)"
-    answer = gets.chomp.downcase
-    if answer.start_with?('h')
-      prompt "You hit!"
-      add_card(player_hand, curr_deck)
-      prompt "Your total is now #{total(player_hand)}"
-    end
-    break if answer.start_with?('s') || busted?(player_hand)
-  end
-end
-
-def dealer_turn(dealer_hand, current_deck)
-  until total(dealer_hand) >= 17
-    dealer_hand << current_deck.delete(current_deck.sample)
-    prompt "Dealer hits and gets a #{dealer_hand.last.last}"
-  end
 end
 
 def deal_cards(player_cards, dealer_cards, deck)
   2.times do
-    player_cards << deck.delete(deck.sample)
-    dealer_cards << deck.delete(deck.sample)
+    player_cards << deck.pop
+    dealer_cards << deck.pop
   end
 end
 
@@ -147,47 +125,112 @@ def show_cards(player, dealer)
   prompt "You have: #{player[0][1]} and #{player[1][1]}"
 end
 
-def play_again
-  prompt "Do you want to play again? (y or n)"
+def play_again?
+  prompt "Do you want to play another round? (y or n)"
   answer = gets.chomp
-  answer
+  return true if answer.downcase.start_with?('y')
+  false
 end
 
 def display_results(player_hand, dealer_hand)
-  prompt "You have #{total(player_hand)}"
-  prompt "Dealer has: #{total(dealer_hand)}"
+  prompt "You have #{player_hand}"
+  prompt "Dealer has: #{dealer_hand}"
+end
+
+def scoreboard(p_score, c_score)
+  prompt "===================="
+  prompt "| PLAYER    #{p_score}      |"
+  prompt "| COMPUTER  #{c_score}      |"
+  prompt "===================="
+end
+
+def winner?(player_score, computer_score)
+  return true if player_score == 5 or computer_score == 5
+  false
 end
 
 loop do
-  system 'clear'
-  current_deck = DECK
-  player_hand = []
-  dealer_hand = []
-  prompt "Welcome to Twenty-One!"
-
-  deal_cards(player_hand, dealer_hand, current_deck)
-  show_cards(player_hand, dealer_hand)
+  player_score = 0
+  computer_score = 0
   
-  player_turn(player_hand, current_deck)
-
-  if busted?(player_hand)
-    prompt "Oh you busted!"
-    break if play_again.downcase.start_with?('n')
-    next
-  else
-    prompt "You chose to stay!"
-  end
-
-  dealer_turn(dealer_hand, current_deck)
-  display_results(player_hand, dealer_hand)
+  loop do
+    
+    #starting
+    system 'clear'
+    current_deck = DECK.shuffle
+    player_hand = []
+    dealer_hand = []
+    
+    prompt "Welcome to Twenty-One!"
+    
+    #deal cards
+    deal_cards(player_hand, dealer_hand, current_deck)
+    show_cards(player_hand, dealer_hand)
+    
+    player_total = total(player_hand)
+    dealer_total = total(dealer_hand)
+    
+    # player turn
+    loop do
+      prompt "Would you like to hit or stay? (h or s)"
+      answer = gets.chomp.downcase
+      if answer.start_with?('h')
+        player_hand << current_deck.pop
+        player_total = total(player_hand)
+        prompt "You hit!"
+        prompt "You got a: #{player_hand.last.last}"
+        prompt "Your total is now #{player_total}"
+      end
+      break if answer.start_with?('s') || busted?(player_total)
+    end
   
-  if busted?(dealer_hand)
-    prompt "Dealer busted!"
-    prompt "You win!"
-  else
-    prompt total(player_hand) >= total(dealer_hand) ? "You win!" : "You lose!"
+    if busted?(player_total)
+      prompt "Oh you busted!"
+      computer_score += 1
+      scoreboard(player_score, computer_score)
+      break if winner?(player_score, computer_score)
+      break unless play_again?
+      next
+    else
+      prompt "You chose to stay!"
+    end
+  
+    # dealer turn 
+    until dealer_total >= DEALER_HIT_NUM
+      dealer_hand << current_deck.pop
+      dealer_total = total(dealer_hand)
+      prompt "Dealer hits and gets a #{dealer_hand.last.last}"
+    end
+    
+    display_results(player_total, dealer_total)
+    
+    if busted?(dealer_total)
+      prompt "Dealer busted!"
+      prompt "You win!"
+      player_score += 1
+      scoreboard(player_score, computer_score)
+    else
+      if player_total >= dealer_total
+        prompt "You win!"
+        player_score += 1
+        scoreboard(player_score, computer_score)
+      else
+        prompt "You lose!"
+        computer_score += 1
+        scoreboard(player_score, computer_score)
+      end
+    end
+    
+    break if winner?(player_score, computer_score) 
+    break unless play_again?
   end
-  break if play_again.downcase.start_with?('n')
+  
+  prompt "The score was: "
+  scoreboard(player_score, computer_score)
+  prompt "Play another match? (y or n)"
+  last_answer = gets.chomp
+  break unless last_answer.downcase.start_with?('y')
+  
 end
 
 prompt "Thanks for playing!"
