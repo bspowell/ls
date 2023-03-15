@@ -145,7 +145,7 @@ def scoreboard(p_score, c_score)
 end
 
 def winner?(player_score, computer_score)
-  return true if player_score == 5 or computer_score == 5
+  return true if player_score == 5 || computer_score == 5
   false
 end
 
@@ -209,16 +209,14 @@ loop do
       prompt "You win!"
       player_score += 1
       scoreboard(player_score, computer_score)
+    elsif player_total >= dealer_total
+      prompt "You win!"
+      player_score += 1
+      scoreboard(player_score, computer_score)
     else
-      if player_total >= dealer_total
-        prompt "You win!"
-        player_score += 1
-        scoreboard(player_score, computer_score)
-      else
-        prompt "You lose!"
-        computer_score += 1
-        scoreboard(player_score, computer_score)
-      end
+      prompt "You lose!"
+      computer_score += 1
+      scoreboard(player_score, computer_score)
     end
     
     break if winner?(player_score, computer_score) 
