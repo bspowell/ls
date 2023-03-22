@@ -26,7 +26,6 @@ D/A:
   - if string.reverse equals string - return string
 
 
-
 =end
 
 def substrings(string)
