@@ -41,28 +41,25 @@ def dms(float)
   seconds = 0
   
   degrees = float.to_i
-  array = ["%(", degrees.to_s, "°", "00", "'", "00","\"",")"]
-  
+  #array = ["%(", degrees.to_s, "°", "00", "'", "00","\"",")"]
+  array = [degrees.to_s, "°", "00", "'", "00","\"",]
   if (float - degrees) > 0
       minutes = (float - degrees) * 60
-      array[3] = minutes.to_i.to_s
+      array[2] = minutes.to_i.to_s
   end
   if (minutes - minutes.to_i) > 0
     seconds = (minutes - minutes.to_i) * 60
-    array[5] = seconds.to_i.to_s
+    array[4] = seconds.to_i.to_s
   end
   
   p array.join
-  
-"30°00'00\""
-
-'1'.rjust(2, '0') == "01"
-
+  # "30°00'00\""
+  # '1'.rjust(2, '0') == "01"
 end
 
-puts dms(30) == %(30°00'00")
-p dms(76.73) == %(76°43'48")
-# dms(254.6) == %(254°36'00")
-# dms(93.034773) == %(93°02'05")
-# dms(0) == %(0°00'00")
-# dms(360) == %(360°00'00") || dms(360) == %(0°00'00")
+# p dms(30) == %(30°00'00")
+# p dms(76.73) == %(76°43'48")
+p dms(254.6) == %(254°36'00")
+p dms(93.034773) == %(93°02'05")
+p dms(0) == %(0°00'00")
+p dms(360) == %(360°00'00") || dms(360) == %(0°00'00")
