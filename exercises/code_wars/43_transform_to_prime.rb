@@ -33,7 +33,7 @@ def minimumNumber(array)
   count = sum
   loop do 
     count += 1
-    break if count % count == 0 
+    break if count % count == 0 or 
   end
   count - sum
 end
