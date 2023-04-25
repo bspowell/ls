@@ -35,16 +35,17 @@ def closest_numbers(array)
   new_arr = []
   (0...array.size).each do |first|
     ((first + 1)...array.size).each do |second|
-      new_arr << [array[first],array[second]]
+      new_arr << [array[first], array[second]]
     end
   end
-  new_arr.sort_by do |sub_array|
-    (sub_array[0] - sub_array[1]).abs
-  end[0]
+  # new_arr.sort_by do |sub_array|
+  #   (sub_array[0] - sub_array[1]).abs
+  # end[0]
+  new_arr
 end
 
-p closest_numbers([5, 25, 15, 11, 20]) == [15, 11]
-p closest_numbers([19, 25, 32, 4, 27, 16]) == [25, 27]
-p closest_numbers([12, 7, 17]) == [12, 7]
+p closest_numbers([5, 25, 15, 11, 20]) #== [15, 11]
+# p closest_numbers([19, 25, 32, 4, 27, 16]) == [25, 27]
+# p closest_numbers([12, 7, 17]) == [12, 7]
 
 # The tests above should print "true".
