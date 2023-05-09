@@ -1,4 +1,4 @@
-require "pry"
+require 'pry'
 
 class Board
   WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] + # rows
@@ -94,15 +94,44 @@ end
 class TTTGame
   HUMAN_MARKER = "X"
   COMPUTER_MARKER = "O"
+  FIRST_TO_MOVE = HUMAN_MARKER
   
   attr_reader :board, :human, :computer
+  attr_accessor :turn
   
   def initialize
     @board = Board.new
     @human = Player.new(HUMAN_MARKER)
     @computer = Player.new(COMPUTER_MARKER)
+    @turn = FIRST_TO_MOVE
   end
   
+  public
+
+  def play
+    display_welcome_message
+    clear_screen
+
+    loop do
+      display_board
+
+      loop do
+        current_player_moves
+        break if board.someone_won? || board.full?
+        clear_screen_and_display_board if human_turn?
+      end
+
+      display_result
+      break unless play_again?
+      reset
+      display_play_again_message
+    end
+
+    display_goodbye_message
+  end
+
+  private 
+
   def display_welcome_message
     puts "Welcome to Tic Tac Toe!"
     puts ""
@@ -171,6 +200,7 @@ class TTTGame
 
   def reset
     board.reset
+    @turn = FIRST_TO_MOVE
     clear_screen
   end
 
@@ -178,32 +208,19 @@ class TTTGame
     puts "Let's play again!"
     puts ''
   end
+
+  def human_turn?
+    @turn == HUMAN_MARKER
+  end
   
-  def play
-    display_welcome_message
-    clear_screen
-
-    loop do
-      display_board
-
-      loop do
-        human_moves
-        break if board.someone_won? || board.full?
-        # break if someone_won? || board_full?
-
-        computer_moves
-        break if board.someone_won? || board.full?
-        # break if someone_won? || board_full?
-        
-        clear_screen_and_display_board
-      end
-      display_result
-      break unless play_again?
-      reset
-      display_play_again_message
+  def current_player_moves
+    if human_turn? 
+      human_moves
+      @turn = COMPUTER_MARKER
+    else
+      computer_moves
+      @turn = HUMAN_MARKER
     end
-
-    display_goodbye_message
   end
 end
 
