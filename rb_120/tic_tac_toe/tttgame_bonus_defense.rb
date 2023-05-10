@@ -9,7 +9,67 @@ class Board
   	@squares = {}
     reset
   end
+
+  def threat_or_offense?(mark='count_human_marker')
+    if mark = 'offense' 
+      WINNING_LINES.each do |line|
+        # @squares.values_at(*line) = array of square objects
+        # checks to see if there are 2 human markers and the line is not full
+        if count_computer_marker(@squares.values_at(*line)) == 2 && !full?(line) 
+          return true
+        end
+      end
+      false
+    else
+      WINNING_LINES.each do |line|
+        # @squares.values_at(*line) = array of square objects
+        # checks to see if there are 2 human markers and the line is not full
+        if count_human_marker(@squares.values_at(*line)) == 2 && !full?(line) 
+          return true
+        end
+      end
+      false
+    end
+  end
+
+  def select_empty_square(mark='count_human_marker')
+    if mark == 'offense'
+      WINNING_LINES.each do |line|
+        # on the line array eg [1,2,3], selecting the keys that are not marked and returning that key
+        if count_computer_marker(@squares.values_at(*line)) == 2 && !full?(line)
+          return line.select {|key| @squares[key].unmarked? }[0]
+        end
+      end
+    else
+      WINNING_LINES.each do |line|
+        # on the line array eg [1,2,3], selecting the keys that are not marked and returning that key
+        if count_human_marker(@squares.values_at(*line)) == 2 && !full?(line)
+          return line.select {|key| @squares[key].unmarked? }[0]
+        end
+      end
+    end
+  end
   
+  def immediate_threat?
+    WINNING_LINES.each do |line|
+      # @squares.values_at(*line) = array of square objects
+      # checks to see if there are 2 human markers and the line is not full
+      if count_human_marker(@squares.values_at(*line)) == 2 && !full?(line) 
+        return true
+      end
+    end
+    false
+  end
+
+  def select_empty_square
+    WINNING_LINES.each do |line|
+      # on the line array eg [1,2,3], selecting the keys that are not marked and returning that key
+      if count_human_marker(@squares.values_at(*line)) == 2 && !full?(line)
+        return line.select {|key| @squares[key].unmarked? }[0]
+      end
+    end
+  end
+
   def []=(key, marker)
     @squares[key].marker = marker
   end
@@ -18,7 +78,11 @@ class Board
     @squares.keys.select {|key| @squares[key].unmarked? }
   end
   
-  def full?
+  def full?(assess_line=nil)
+    #takes a line, and see's if there is any unmarked spots.
+    if assess_line != nil
+      return assess_line.select {|key| @squares[key].unmarked? }.empty?
+    end
     unmarked_keys.empty?
   end
 
@@ -26,7 +90,7 @@ class Board
     !!winning_marker
   end
 
-  def count_human_marker(squares)
+  def count_human_marker(squares) #passing in an array of square objects like #<Square:0x000000011414d038 @marker=" ">
     squares.collect(&:marker).count(TTTGame::HUMAN_MARKER)
   end
 
@@ -97,13 +161,15 @@ class TTTGame
   FIRST_TO_MOVE = HUMAN_MARKER
   
   attr_reader :board, :human, :computer
-  attr_accessor :turn
+  attr_accessor :turn, :human_score, :computer_score
   
   def initialize
     @board = Board.new
     @human = Player.new(HUMAN_MARKER)
     @computer = Player.new(COMPUTER_MARKER)
     @turn = FIRST_TO_MOVE
+    @human_score = 0
+    @computer_score = 0
   end
   
   public
@@ -158,8 +224,19 @@ class TTTGame
     display_board
   end
   
+  def choose_message
+    case 
+    when board.unmarked_keys.size > 2
+      puts "Choose a square (#{board.unmarked_keys[0..-2].join(', ')} or #{board.unmarked_keys[-1]}): "
+    when board.unmarked_keys.size == 2
+      puts "Choose a square (#{board.unmarked_keys[0]} or #{board.unmarked_keys[1]})"
+    else
+      puts "Choose a square (#{board.unmarked_keys[0]})"
+    end
+  end 
+
   def human_moves
-    puts "Choose a square (#{board.unmarked_keys.join(', ')}): "
+    choose_message
     square = nil
     loop do
       square = gets.chomp.to_i
@@ -171,7 +248,38 @@ class TTTGame
   end
   
   def computer_moves
-    board.[]=(board.unmarked_keys.sample, computer.marker)
+    if board.immediate_threat?
+      # binding.pry
+      board.[]=(board.select_empty_square, computer.marker)
+    else 
+      board.[]=(board.unmarked_keys.sample, computer.marker)
+    end
+  end
+
+  def winner?
+    return true if human_score == 5 || computer_score == 5
+    false
+  end
+
+  def reset_score
+    @human_score = 0
+    @computer_score = 0
+  end
+
+  def winning_message(winner='Human')
+    puts "#{winner} won the match!"
+    reset_score
+  end
+
+  def keep_score(player='human')
+    if player == 'computer'
+      @computer_score += 1
+      winning_message if winner?
+    else
+      @human_score += 1
+      winning_message if winner?
+    end
+    puts "Score is Player: #{human_score}, Computer: #{computer_score}"
   end
     
   def display_result
@@ -180,8 +288,10 @@ class TTTGame
     case board.winning_marker
     when human.marker
       puts "You won!"
+      keep_score
     when computer.marker
       puts "Computer won!"
+      keep_score('computer')
     else
       puts "It's a tie!"
     end

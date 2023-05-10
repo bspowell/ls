@@ -97,13 +97,15 @@ class TTTGame
   FIRST_TO_MOVE = HUMAN_MARKER
   
   attr_reader :board, :human, :computer
-  attr_accessor :turn
+  attr_accessor :turn, :human_score, :computer_score
   
   def initialize
     @board = Board.new
     @human = Player.new(HUMAN_MARKER)
     @computer = Player.new(COMPUTER_MARKER)
     @turn = FIRST_TO_MOVE
+    @human_score = 0
+    @computer_score = 0
   end
   
   public
@@ -158,8 +160,19 @@ class TTTGame
     display_board
   end
   
+  def choose_message
+    case 
+    when board.unmarked_keys.size > 2
+      puts "Choose a square (#{board.unmarked_keys[0..-2].join(', ')} or #{board.unmarked_keys[-1]}): "
+    when board.unmarked_keys.size == 2
+      puts "Choose a square (#{board.unmarked_keys[0]} or #{board.unmarked_keys[1]})"
+    else
+      puts "Choose a square (#{board.unmarked_keys[0]})"
+    end
+  end 
+
   def human_moves
-    puts "Choose a square (#{board.unmarked_keys.join(', ')}): "
+    choose_message
     square = nil
     loop do
       square = gets.chomp.to_i
@@ -173,6 +186,32 @@ class TTTGame
   def computer_moves
     board.[]=(board.unmarked_keys.sample, computer.marker)
   end
+
+  def winner?
+    return true if human_score == 5 || computer_score == 5
+    false
+  end
+
+  def reset_score
+    @human_score = 0
+    @computer_score = 0
+  end
+
+  def winning_message(winner='Human')
+    puts "#{winner} won the match!"
+    reset_score
+  end
+
+  def keep_score(player='human')
+    if player == 'computer'
+      @computer_score += 1
+      winning_message if winner?
+    else
+      @human_score += 1
+      winning_message if winner?
+    end
+    puts "Score is Player: #{human_score}, Computer: #{computer_score}"
+  end
     
   def display_result
     clear_screen_and_display_board
@@ -180,8 +219,10 @@ class TTTGame
     case board.winning_marker
     when human.marker
       puts "You won!"
+      keep_score
     when computer.marker
       puts "Computer won!"
+      keep_score('computer')
     else
       puts "It's a tie!"
     end

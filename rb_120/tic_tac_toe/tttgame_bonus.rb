@@ -158,8 +158,19 @@ class TTTGame
     display_board
   end
   
+  def choose_message
+    case 
+    when board.unmarked_keys.size > 2
+      puts "Choose a square (#{board.unmarked_keys[0..-2].join(', ')} or #{board.unmarked_keys[-1]}): "
+    when board.unmarked_keys.size == 2
+      puts "Choose a square (#{board.unmarked_keys[0]} or #{board.unmarked_keys[1]})"
+    else
+      puts "Choose a square (#{board.unmarked_keys[0]})"
+    end
+  end 
+
   def human_moves
-    puts "Choose a square (#{board.unmarked_keys.join(', ')}): "
+    choose_message
     square = nil
     loop do
       square = gets.chomp.to_i
