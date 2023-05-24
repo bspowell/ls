@@ -19,6 +19,11 @@ General dentists fill teeth
 
 =end
 
+module Pullable
+  def pull_teeth
+  end
+end
+
 class DentalOffice
   def initialize
     @name = "Dental People Inc."
@@ -27,34 +32,30 @@ class DentalOffice
 end
 
 class Dentist
-
+  
   def intialize
     @graduated_school = true
-  end
-
-  def pull_teeth
-    true
   end
 
 end 
 
 class OralSurgeon < Dentist
+  include Pullable
+
   def place_implants
   end 
 
 end
 
 class Orthodontist < Dentist
-  def pull_teeth
-    false
-  end
-
   def straighten_teeth
   end
 
 end
 
 class GeneralDentist < Dentist
+  include Pullable
+
   def fill_teeth
   end
 end
