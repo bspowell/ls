@@ -1,17 +1,9 @@
-class Teacher 
-
+# method implementation
+def test
+  yield(1)    # passing 1 block argument at block invocation time
 end
 
-class Necromancer
-
+# method invocation
+test do |num1, num2| # expecting 2 parameters in block implementation
+  puts "#{num1} #{num2}"
 end
-
-class Student
-  def initialize(specialty)
-    Class.new specialty
-  end
-end
-
-student = Student.new(Necromancer)
-
-p Student.ancestors
