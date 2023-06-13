@@ -1,0 +1,2 @@
+
+assert_nil value

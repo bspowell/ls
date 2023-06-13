@@ -13,7 +13,6 @@ def reduce(array, accumulator=array[0].class.new)
 
   while counter < array.size
     current = array[counter]
-    puts "This result is #{result}, current is #{current}"
     result = yield(result, current)
     counter += 1
   end
