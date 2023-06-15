@@ -1,9 +1,7 @@
-def say(words)
-  yield(words) if block_given?
-  puts "> " + words
+def welcome(arg)
+  yield(arg, 'boo')
 end
 
-# method invocation
-say("hi there") do |block_param|
-  puts block_param
-end 
+welcome('Hello') { |num| puts num + 'there' } # => Hello there
+welcome('Hey') { |num, num2| puts num + num2 + 'Joe' }   # => Hey Joe
+# welcome('Hi!')                # => Hi! (there's a space after the !)
