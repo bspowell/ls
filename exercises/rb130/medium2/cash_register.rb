@@ -25,4 +25,4 @@ class CashRegister
     change(transaction)
     give_receipt(transaction)
   end
-end
+end 
