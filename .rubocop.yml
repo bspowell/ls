@@ -1,6 +1,8 @@
-# .rubocop.yml for non-RB101 courses (17 Mar 2021)
+# .rubocop.yml for non-RB101 courses (06 June 2023)
 
 AllCops:
+  # Enable all new cops
+  NewCops: enable
   # Display cop names
   DisplayCopNames: true
   # Display Extra details
